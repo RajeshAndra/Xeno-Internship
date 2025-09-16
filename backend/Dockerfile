@@ -4,14 +4,15 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
-# Install curl for healthcheck and production deps
+# Copy backend package files
+COPY backend/package*.json ./
+
+# Install curl for healthcheck and backend dependencies
 RUN apk add --no-cache curl \
   && npm ci --only=production
 
-# Copy source code
-COPY . .
+# Copy backend source code only
+COPY backend/ .
 
 # Create logs directory
 RUN mkdir -p logs
