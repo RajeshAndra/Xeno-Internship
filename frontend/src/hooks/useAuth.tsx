@@ -22,9 +22,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   // Check for existing authentication on mount
   useEffect(() => {
+    setIsClient(true);
     checkAuth();
   }, []);
 
@@ -63,7 +65,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setTenant(user.tenant || null);
         
         toast.success('Login successful!');
-        router.push('/dashboard');
+        if (isClient) {
+          router.push('/dashboard');
+        }
       }
     } catch (error) {
       const apiError = error as ApiError;
@@ -86,7 +90,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setTenant(tenant || user.tenant || null);
         
         toast.success('Registration successful!');
-        router.push('/dashboard');
+        if (isClient) {
+          router.push('/dashboard');
+        }
       }
     } catch (error) {
       const apiError = error as ApiError;
@@ -103,14 +109,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setTenant(null);
       toast.success('Logged out successfully');
-      router.push('/login');
+      if (isClient) {
+        router.push('/login');
+      }
     } catch (error) {
       console.error('Logout error:', error);
       // Clear local state anyway
       apiClient.clearAuth();
       setUser(null);
       setTenant(null);
-      router.push('/login');
+      if (isClient) {
+        router.push('/login');
+      }
     }
   };
 
@@ -181,12 +191,17 @@ export function withAuth<P extends object>(
   return function AuthenticatedComponent(props: P) {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-      if (!loading && !user) {
+      setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+      if (isClient && !loading && !user) {
         router.push('/login');
       }
-    }, [user, loading, router]);
+    }, [user, loading, router, isClient]);
 
     if (loading) {
       return options.fallback ? (

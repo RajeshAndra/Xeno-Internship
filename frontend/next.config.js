@@ -5,6 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  
   // Environment-specific configurations
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,

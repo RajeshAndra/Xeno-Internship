@@ -377,3 +377,10 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+
+// Force server-side rendering to avoid static generation issues with authentication
+export async function getServerSideProps() {
+  return {
+    props: {},
+  };
+}

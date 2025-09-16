@@ -260,3 +260,10 @@ const AnalyticsPage: React.FC = () => {
 };
 
 export default AnalyticsPage;
+
+// Force server-side rendering to avoid static generation issues with authentication
+export async function getServerSideProps() {
+  return {
+    props: {},
+  };
+}
