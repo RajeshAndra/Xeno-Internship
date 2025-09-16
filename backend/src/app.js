@@ -26,7 +26,11 @@ function createApp() {
 	}));
 
 	app.use(cors({
-		origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:3001'],
+		origin: process.env.FRONTEND_URL || [
+			'http://localhost:3000', 
+			'http://localhost:3001',
+			'https://shopify-insights-frontend-production.up.railway.app'
+		],
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization']
