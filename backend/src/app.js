@@ -25,15 +25,34 @@ function createApp() {
 		crossOriginResourcePolicy: { policy: 'cross-origin' }
 	}));
 
+	// CORS configuration
+	const allowedOrigins = [
+		'http://localhost:3000', 
+		'http://localhost:3001',
+		'https://shopify-insights-frontend-production.up.railway.app'
+	];
+
+	// Add FRONTEND_URL if it's set
+	if (process.env.FRONTEND_URL) {
+		allowedOrigins.push(process.env.FRONTEND_URL);
+	}
+
 	app.use(cors({
-		origin: process.env.FRONTEND_URL || [
-			'http://localhost:3000', 
-			'http://localhost:3001',
-			'https://shopify-insights-frontend-production.up.railway.app'
-		],
+		origin: function (origin, callback) {
+			// Allow requests with no origin (like mobile apps or curl requests)
+			if (!origin) return callback(null, true);
+			
+			if (allowedOrigins.indexOf(origin) !== -1) {
+				callback(null, true);
+			} else {
+				console.log('CORS blocked origin:', origin);
+				callback(new Error('Not allowed by CORS'));
+			}
+		},
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization']
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+		optionsSuccessStatus: 200
 	}));
 
 	app.use(express.json({ limit: '10mb' }));
@@ -54,7 +73,11 @@ function createApp() {
 	});
 
 	app.get('/api/health', (req, res) => {
-		res.json({ status: 'ok' });
+		res.json({ 
+			status: 'ok',
+			origin: req.headers.origin,
+			allowedOrigins: allowedOrigins
+		});
 	});
 
 	app.use('/api/auth', authRoutes);
